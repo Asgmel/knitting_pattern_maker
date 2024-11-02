@@ -1,0 +1,14 @@
+session_name: knitting_pattern_maker
+start_directory: /home/mel/Projects/knitting_pattern_maker/
+windows:
+  - window_name: knitting_pattern_maker 
+    layout: 1e30,379x70,0,0{83x70,0,0,1,190x70,84,0,4,104x70,275,0[104x35,275,0,2,104x34,275,36,5]}
+    options:
+      main-pane-height: 100%
+    panes:
+      - blank
+      - shell_command: # pane no. 1
+          - nvim . 
+        focus: True
+      - blank 
+      - blank 
