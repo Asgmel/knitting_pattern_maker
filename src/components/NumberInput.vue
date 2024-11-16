@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   labelText: {
     type: String,
     required: true,
@@ -15,7 +15,20 @@ const props = defineProps({
 
 const inputValueModel = defineModel()
 
-console.log(inputValueModel.value)
 </script>
 
-<style scoped></style>
+<style scoped>
+.container {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+label {
+  color: #ffffff;
+}
+
+input {
+  width: 50px;
+}
+</style>

@@ -41,7 +41,7 @@ const updateFilePath = async () => {
 
 </script>
 
-<style lang="css" scoped>
+<style scoped>
 .container {
   display: flex;
   gap: 15px;
