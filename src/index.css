@@ -1,14 +1,44 @@
+:root {
+  --background-color: #588157;
+  --light-font-color: #dad7cd;
+  --dark-font-color: #343a40;
+  --primary-button-color: #344e41;
+  --secondary-button-color: #344e41;
+  --input-background-color: #dad7cd;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   margin: auto;
   padding: 2rem;
-  background-color: #3f3f3f;
+  background-color: var(--background-color);
+}
+
+h1 {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
 }
 
 input {
-  border: none;
   border-radius: 2px;
   height: 20px;
   padding: 0 5px;
+  background-color: var(--input-background-color);
+  color: var(--dark-font-color);
+  font-size: 16px;
+  letter-spacing: 1.5px;
+  height: 24px;
+  border: 2px solid var(--input-background-color)
+}
+
+button {
+  height: 32px;
+  background-color: var(--secondary-button-color);
+  color: var(--light-font-color);
+  border: none;
+  border-radius: 3px;
+  font-size: 15px;
+  cursor: pointer;
 }

@@ -54,10 +54,5 @@ const updateFilePath = async () => {
 
 button {
   width: 150px;
-  height: 32px;
-  background-color: #F28C28;
-  color: #000000;
-  border: none;
-  border-radius: 3px;
 }
 </style>

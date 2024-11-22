@@ -1,34 +1,65 @@
 <template>
   <div class="container">
     <input type="text" ref="fromInput" :value="fromInputValue"
-      @beforeinput="(e: Event) => { fromInputValue = sanitizeHexInput(e) }"
-      :style="{ border: validateHexColor(fromInputValue) ? 'none' : '1px solid #ff0033' }">
-    <div class="colorBox" :style="{ backgroundColor: validateHexColor(fromInputValue) ? fromInputValue : '#ffffff' }">
+      @beforeinput="(e: Event) => { fromInputValue = sanitizeHexInput(fromInputRef, e) }"
+      :style="{ border: validateHexColor(fromInputValue) ? '' : '2px solid #ff0033' }">
+    <div class="colorBox" :style="{ backgroundColor: validateHexColor(fromInputValue) ? fromInputValue : '#dad7cd' }">
     </div>
     <div class="dash">-</div>
-    <div class="colorBox" :style="{ backgroundColor: validateHexColor(toInputValue) ? toInputValue : '#ffffff' }"></div>
-    <input type="text" ref="toInput" :value="toInputValue"
-      @beforeinput="(e: Event) => { toInputValue = sanitizeHexInput(e) }"
-      :style="{ border: validateHexColor(toInputValue) ? 'none' : '1px solid #ff0033' }">
-    <button class="change">⇓</button>
-
+    <div class="colorBox" :style="{ backgroundColor: validateHexColor(toInputValue) ? toInputValue : '#dad7cd' }">
+      {{ transformationElementsIcons[transformationElementIndex] }}</div>
+    <input v-if="transformationElementsName[transformationElementIndex] == 'hex'" type="text" ref="toInput"
+      :value="toInputValue" @beforeinput="(e: Event) => { toInputValue = sanitizeHexInput(toInputRef, e) }"
+      :style="{ border: validateHexColor(toInputValue) ? '' : '1px solid #ff0033' }">
+    <p v-if="transformationElementsName[transformationElementIndex] != 'hex'">
+      {{ transformationElementsName[transformationElementIndex] }}</p>
+    <button class="changeButton" @click="incrementTransformationElementIndex">➡</button>
+    <button class="deleteButton" @click="$emit('delete')">✖</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, Ref, useTemplateRef } from 'vue';
+import { onBeforeMount, ref, Ref, useTemplateRef } from 'vue';
 
-const fromInputValue = defineModel("from")
-const toInputValue = defineModel("to")
+defineEmits(["delete"])
+
+const fromInputValue = defineModel<string>("from")
+const toInputValue = defineModel<string>("to")
 const fromInputRef: Ref<HTMLInputElement> = useTemplateRef("fromInput")
 const toInputRef: Ref<HTMLInputElement> = useTemplateRef("toInput")
 
+const transformationElementsName = ["circle", "dot", "cross", "line", "hex"]
+const transformationElementsIcons = ["O", "•", "X", "-", ""]
+let transformationElementIndex = ref(0)
+let hexValueHolder = "#ffffff"
+
+onBeforeMount(() => {
+  const index = transformationElementsName.indexOf(toInputValue.value)
+  transformationElementIndex.value = index === -1 ? transformationElementsName.indexOf('hex') : index
+})
+
+function incrementTransformationElementIndex() {
+  if (transformationElementsName[transformationElementIndex.value] === "hex") {
+    hexValueHolder = toInputValue.value
+  }
+  if (transformationElementIndex.value < transformationElementsName.length - 1) {
+    transformationElementIndex.value++
+  } else {
+    transformationElementIndex.value = 0
+  }
+
+  if (transformationElementsName[transformationElementIndex.value] === "hex") {
+    toInputValue.value = hexValueHolder
+  } else {
+    toInputValue.value = transformationElementsName[transformationElementIndex.value]
+  }
+}
 
 function validateHexColor(hexColorValue: string) {
   return /^#[a-fA-F0-9]{6}$/.test(hexColorValue)
 }
 
-const sanitizeHexInput = (event: InputEvent) => {
+function sanitizeHexInput(element: HTMLInputElement, event: InputEvent) {
   event.preventDefault()
 
   let value = (event.target as HTMLInputElement).value;
@@ -80,8 +111,8 @@ const sanitizeHexInput = (event: InputEvent) => {
   value = value.replace(/[^#a-fA-F0-9]/g, '');
 
   setTimeout(() => {
-    fromInputRef.value.focus()
-    fromInputRef.value.setSelectionRange(cursorPosition, cursorPosition);
+    element.focus()
+    element.setSelectionRange(cursorPosition, cursorPosition);
   })
 
   return value
@@ -91,15 +122,45 @@ const sanitizeHexInput = (event: InputEvent) => {
 <style scoped>
 .container {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dash {
   color: #ffffff;
 }
 
+button {
+  display: flex;
+  width: 32px;
+  font-size: 24px;
+  transform: rotate(90deg);
+  align-items: center;
+  justify-content: center;
+}
+
+.changeButton {
+  margin-left: 100px;
+}
+
+input {
+  width: 80px;
+}
+
+p {
+  width: 80px;
+  margin: 0;
+  padding: 0 7px;
+  color: var(--light-font-color);
+  text-transform: capitalize;
+}
+
 .colorBox {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-font-color);
 }
 </style>
