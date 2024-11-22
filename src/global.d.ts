@@ -1,5 +1,7 @@
 // src/global.d.ts
 
+import { ConverterSettings } from "./converter.types";
+
 export { };
 
 declare global {
@@ -9,6 +11,7 @@ declare global {
       // For example:
       openDirectory: () => Promise<string | null>;
       openFile: () => Promise<string | null>;
+      runConversion: (converterSettings: ConverterSettings) => Promise<string | null>;
       // Add other methods as needed
     };
   }
