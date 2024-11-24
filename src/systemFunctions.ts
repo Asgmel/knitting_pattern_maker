@@ -23,10 +23,3 @@ export const openFile = async () => {
   }
 }
 
-export const runConversion = async (converterSettings: ConverterSettings) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(`Pattern created at: ${converterSettings.outputFolderPath}`);
-    }, 2000); // Simulates a 2-second delay
-  });
-}

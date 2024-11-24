@@ -8,7 +8,7 @@ windows:
     panes:
       - blank
       - shell_command: # pane no. 1
-          - nvim . 
+          - nvim 
         focus: True
       - blank 
       - blank 

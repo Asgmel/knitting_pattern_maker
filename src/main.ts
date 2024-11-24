@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import { openDirectory, openFile, runConversion } from './systemFunctions';
+import { runConversion } from './conversion';
+import { openDirectory, openFile } from './systemFunctions';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

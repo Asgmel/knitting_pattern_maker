@@ -48,14 +48,14 @@ function addColorReplacement() {
   }
 }
 
-let inputFilePath = ref("")
-let outputFolderPath = ref("")
+let inputFilePath = ref("/home/mel/Projects/knitting_pattern_maker/tmp/pixel.png")
+let outputFolderPath = ref("/home/mel/Projects/knitting_pattern_maker/tmp")
 let patternScale = ref(20)
 let borderSize = ref(2)
 let iconSize = ref(2)
 let colorReplacements = ref([
   {
-    from: "#123123",
+    from: "#fbf236",
     to: "circle",
   },
   {
