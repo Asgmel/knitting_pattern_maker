@@ -15,38 +15,50 @@ export async function runConversion(converterSettings: ConverterSettings) {
 
     let newImage = new Jimp({ width: newWidth, height: newHeight, color: 0x000000FE });
 
-    // process each pixel in the original image
     for (let y = 0; y < originalHeight; y++) {
       for (let x = 0; x < originalWidth; x++) {
-        const originalColor = originalImage.getPixelColor(x, y).toString();
+        let match = false
+        const originalColor = originalImage.getPixelColor(x, y);
         console.log(originalColor)
         const anchorX = x * (converterSettings.patternScale + converterSettings.borderSize);
         const anchorY = y * (converterSettings.patternScale + converterSettings.borderSize);
 
 
         for (let replacement of converterSettings.colorReplacements) {
-          if (originalColor === replacement.from && replacement.to === "circle") {
-            newImage = transform_pixel_circle(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize, replacement)
+          const replacementFrom = parseInt(replacement.from.slice(1) + "FF", 16)
+
+          if (originalColor === replacementFrom && replacement.to === "circle") {
+            newImage = transform_pixel_circle(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize)
+            match = true
+            break
           }
-          else if (originalColor === replacement.from && replacement.to === "dot") {
-            newImage = transform_pixel_dot(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize, replacement)
+          else if (originalColor === replacementFrom && replacement.to === "dot") {
+            newImage = transform_pixel_dot(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize)
+            match = true
+            break
           }
-          else if (originalColor === replacement.from && replacement.to === "cross") {
-            newImage = transform_pixel_cross(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize, replacement)
+          else if (originalColor === replacementFrom && replacement.to === "cross") {
+            newImage = transform_pixel_cross(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize)
+            match = true
+            break
           }
-          else if (originalColor === replacement.from && replacement.to === "line") {
-            newImage = transform_pixel_line(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize, replacement)
+          else if (originalColor === replacementFrom && replacement.to === "line") {
+            newImage = transform_pixel_line(newImage, anchorX, anchorY, converterSettings.patternScale, converterSettings.iconSize,)
+            match = true
+            break
           }
-          else if (originalColor === replacement.from && replacement.to === "hex") {
+          else if (originalColor === replacementFrom && replacement.to === "hex") {
             newImage = transform_pixel_color(newImage, anchorX, anchorY, converterSettings.patternScale, replacement)
+            match = true
+            break
           }
-          else {
-            newImage = transform_pixel_default(newImage, anchorX, anchorY, converterSettings.patternScale)
-          }
+        }
+
+        if (!match) {
+          newImage = transform_pixel_default(newImage, anchorX, anchorY, converterSettings.patternScale, originalColor)
         }
       }
     }
-    // Save the new image
     await newImage.write(`${converterSettings.outputFolderPath}/processedImage.png`);
     return `Image processed and saved to ${converterSettings.outputFolderPath}/processedImage.png`
   } catch (err) {
@@ -60,8 +72,24 @@ function transform_pixel_circle(
   anchorY: number,
   patternScale: number,
   iconSize: number,
-  colorReplacement: ColorReplacement
 ): JimpType {
+  console.log("Processing Circle")
+  const centerX = anchorX + (patternScale / 2)
+  const centerY = anchorY + (patternScale / 2)
+
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      const distanceX = Math.abs(x - centerX)
+      const distanceY = Math.abs(y - centerY)
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      if (distance >= Math.floor(patternScale / 4) - Math.floor(iconSize / 2) && distance <= Math.floor(patternScale / 4) + iconSize) {
+        image.setPixelColor(0x000000FF, x, y)
+      } else {
+        image.setPixelColor(0xFFFFFFFF, x, y)
+      }
+    }
+  }
   return image
 }
 
@@ -71,8 +99,24 @@ function transform_pixel_dot(
   anchorY: number,
   patternScale: number,
   iconSize: number,
-  colorReplacement: ColorReplacement
 ): JimpType {
+  console.log("Processing Dot")
+  const centerX = anchorX + (patternScale / 2)
+  const centerY = anchorY + (patternScale / 2)
+
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      const distanceX = Math.abs(x - centerX)
+      const distanceY = Math.abs(y - centerY)
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      if (distance <= iconSize * 2) {
+        image.setPixelColor(0x000000FF, x, y)
+      } else {
+        image.setPixelColor(0xFFFFFFFF, x, y)
+      }
+    }
+  }
   return image
 }
 
@@ -82,8 +126,23 @@ function transform_pixel_cross(
   anchorY: number,
   patternScale: number,
   iconSize: number,
-  colorReplacement: ColorReplacement
 ): JimpType {
+  console.log("Processing Cross")
+  const centerX = anchorX + (patternScale / 2)
+  const centerY = anchorY + (patternScale / 2)
+
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      const distanceCenterX = Math.abs(x - centerX)
+      const distanceCenterY = Math.abs(y - centerY)
+
+      if ((distanceCenterX <= iconSize && distanceCenterY < (patternScale / 2) - 4) || distanceCenterY <= iconSize && distanceCenterX < (patternScale / 2) - 4) {
+        image.setPixelColor(0x000000FF, x, y)
+      } else {
+        image.setPixelColor(0xFFFFFFFF, x, y)
+      }
+    }
+  }
   return image
 }
 
@@ -93,8 +152,20 @@ function transform_pixel_line(
   anchorY: number,
   patternScale: number,
   iconSize: number,
-  colorReplacement: ColorReplacement
 ): JimpType {
+  console.log("Processing Line")
+  const centerX = anchorX + (patternScale / 2)
+  const centerY = anchorY + (patternScale / 2)
+
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      if (Math.abs(x - centerX) < patternScale * 2 && Math.abs(y - centerY) <= iconSize) {
+        image.setPixelColor(0x000000FF, x, y)
+      } else {
+        image.setPixelColor(0xFFFFFFFF, x, y)
+      }
+    }
+  }
   return image
 }
 
@@ -105,6 +176,13 @@ function transform_pixel_color(
   patternScale: number,
   colorReplacement: ColorReplacement
 ): JimpType {
+  console.log("Processing Pixel Color")
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      console.log(`Transforming pixel x:${x}, y:${y} to color ${parseInt(colorReplacement.to + "FF", 16)}`)
+      image.setPixelColor(parseInt(colorReplacement.to + "FF", 16), x, y)
+    }
+  }
   return image
 }
 
@@ -113,6 +191,13 @@ function transform_pixel_default(
   anchorX: number,
   anchorY: number,
   patternScale: number,
+  color: number
 ): JimpType {
+  console.log("Processing Pixel Color")
+  for (let y = anchorY; y < anchorY + patternScale; ++y) {
+    for (let x = anchorX; x < anchorX + patternScale; ++x) {
+      image.setPixelColor(color, x, y)
+    }
+  }
   return image
 }
