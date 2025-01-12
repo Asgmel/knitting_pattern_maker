@@ -9,19 +9,28 @@ export async function runConversion(converterSettings: ConverterSettings) {
 
     const originalWidth = originalImage.bitmap.width;
     const originalHeight = originalImage.bitmap.height;
+    const whitespaceSize = 100
 
-    const newWidth = originalWidth * converterSettings.patternScale + (originalWidth - 1) * converterSettings.borderSize;
-    const newHeight = originalHeight * converterSettings.patternScale + (originalHeight - 1) * converterSettings.borderSize;
+    const newWidthScale = originalWidth * converterSettings.patternScale
+    const newWidthBorder = (originalWidth - 1) * converterSettings.borderSize
+    const newWidthBorderIncrements = Math.floor(originalWidth / 5) * converterSettings.borderSize; // Every 5th border
+    const newWidth = newWidthScale + newWidthBorder + newWidthBorderIncrements + whitespaceSize
 
-    let newImage = new Jimp({ width: newWidth, height: newHeight, color: 0x000000FE });
+    const newHeightScale = originalHeight * converterSettings.patternScale
+    const newHeightBorder = (originalHeight - 1) * converterSettings.borderSize
+    const newHeightBorderIncrements = Math.floor(originalHeight / 5) * converterSettings.borderSize; // Every 5th border
+    const newHeight = newHeightScale + newHeightBorder + newHeightBorderIncrements + whitespaceSize
+
+    let newImage = new Jimp({ width: newWidth, height: newHeight, color: 0x000000FF });
 
     for (let y = 0; y < originalHeight; y++) {
       for (let x = 0; x < originalWidth; x++) {
         let match = false
         const originalColor = originalImage.getPixelColor(x, y);
         console.log(originalColor)
-        const anchorX = x * (converterSettings.patternScale + converterSettings.borderSize);
-        const anchorY = y * (converterSettings.patternScale + converterSettings.borderSize);
+        // Anchor = position * (scale + borderwidth) + extra borderwidth for every 5th line
+        const anchorX = x * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor(x / 5) * converterSettings.borderSize;
+        const anchorY = y * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor(y / 5) * converterSettings.borderSize;
 
 
         for (let replacement of converterSettings.colorReplacements) {
@@ -56,6 +65,16 @@ export async function runConversion(converterSettings: ConverterSettings) {
 
         if (!match) {
           newImage = transform_pixel_default(newImage, anchorX, anchorY, converterSettings.patternScale, originalColor)
+        }
+      }
+    }
+
+    // Set right and bottom margin to white for numbering of lines
+    for (let y = 0; y < newImage.bitmap.height; y++) {
+      for (let x = 0; x < newImage.bitmap.width; x++) {
+        if (y > newImage.bitmap.height - whitespaceSize || x > newImage.bitmap.width - whitespaceSize) {
+          console.log(x, y, "Replacing color")
+          newImage.setPixelColor(0xFFFFFFFF, x, y)
         }
       }
     }
@@ -136,7 +155,7 @@ function transform_pixel_cross(
       const distanceCenterX = Math.abs(x - centerX)
       const distanceCenterY = Math.abs(y - centerY)
 
-      if ((distanceCenterX <= iconSize && distanceCenterY < (patternScale / 2) - 4) || distanceCenterY <= iconSize && distanceCenterX < (patternScale / 2) - 4) {
+      if ((distanceCenterX <= iconSize && distanceCenterY < (patternScale / 2) - 2) || distanceCenterY <= iconSize && distanceCenterX < (patternScale / 2) - 4) {
         image.setPixelColor(0x000000FF, x, y)
       } else {
         image.setPixelColor(0xFFFFFFFF, x, y)
