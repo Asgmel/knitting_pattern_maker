@@ -29,8 +29,8 @@ export async function runConversion(converterSettings: ConverterSettings) {
         const originalColor = originalImage.getPixelColor(x, y);
         console.log(originalColor)
         // Anchor = position * (scale + borderwidth) + extra borderwidth for every 5th line
-        const anchorX = x * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor(x / 5) * converterSettings.borderSize;
-        const anchorY = y * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor(y / 5) * converterSettings.borderSize;
+        const anchorX = x * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor((x - originalImage.bitmap.width % 5) / 5) * converterSettings.borderSize;
+        const anchorY = y * (converterSettings.patternScale + converterSettings.borderSize) + Math.floor((y - originalImage.bitmap.height % 5) / 5) * converterSettings.borderSize;
 
 
         for (let replacement of converterSettings.colorReplacements) {
